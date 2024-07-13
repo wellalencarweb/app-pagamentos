@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+    mongo:
+        container_name: fastFoodMongodb
+        image: mongo:latest
+        ports:
+            - "27017:27017"
+        volumes:
+            - ./data/db:/data/db
+        networks:
+            - fastFoodNetwork
+    api:
+        container_name: fastFoodApi
+        build: "."
+        working_dir: /fastFood
+        environment:
+            NODE_ENV: development
+            MONGODB_CONN_STRING: mongodb://mongo:27017
+            PEDIDO_SVC_URL: http://localhost:6001/api/pagamento
+        command: sh -c "npm run start"
+        depends_on:
+            mongo:
+                condition: service_started
+        ports:
+            - "6001:6001"
+        networks:
+            - fastFoodNetwork
+networks:
+    fastFoodNetwork:
+        driver: bridge
